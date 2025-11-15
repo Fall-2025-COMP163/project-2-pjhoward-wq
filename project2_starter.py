@@ -1,12 +1,12 @@
 """
 COMP 163 - Project 2: Character Abilities Showcase
-Name: [Your Name Here]
-Date: [Date]
+Name: [Princeton Howard]
+Date: [11/14/25]
 
 AI Usage: [Document any AI assistance used]
 Example: AI helped with inheritance structure and method overriding concepts
 """
-
+import random #dodge chance percentage
 # ============================================================================
 # PROVIDED BATTLE SYSTEM (DO NOT MODIFY)
 # ============================================================================
@@ -54,16 +54,22 @@ class SimpleBattle:
 # ============================================================================
 
 class Character:
+    
     """
     Base class for all characters.
     This is the top of our inheritance hierarchy.
     """
     
-    def __init__(self, name, health, strength, magic):
+    def __init__(self, name, health, strength, magic, dodge_chance=0):
         """Initialize basic character attributes"""
         # TODO: Set the character's name, health, strength, and magic
         # These should be stored as instance variables
-        pass
+        self.name = name
+        self.health = health
+        self.strength = strength
+        self.magic = magic
+        self.dodge_chance = dodge_chance
+        
         
     def attack(self, target):
         """
@@ -73,28 +79,55 @@ class Character:
         2. Apply damage to the target
         3. Print what happened
         """
+        damage = self.strength
+        target.take_damage(damage)
+        print(f"{self.name} attacks {target.name} for {damage} damage!")
+
         # TODO: Implement basic attack
         # Damage should be based on self.strength
         # Use target.take_damage(damage) to apply damage
-        pass
+        
         
     def take_damage(self, damage):
         """
         Reduces this character's health by the damage amount.
         Health should never go below 0.
         """
+        # Successful dodge
+        if random.randint(1, 100) <= self.dodge_chance: #if char1 dodge_chance is greater than or equal to then dodge
+            print(f"{self.name} dodged the attack! No damage taken.")
+
+            if self.dodge_chance < 50:    # Increase dodge, but only up to 50%
+                old = self.dodge_chance
+                self.dodge_chance = min(50, self.dodge_chance + 5)
+                print(f"{self.name}'s dodge chance increased: {old}% -> {self.dodge_chance}%")
+            return #exit if dodge
+
+        original_health = self.health #sets a holder to show the change in health
+        if self.dodge_chance > 0:    # Reduce dodge chance when hit
+            old = self.dodge_chance
+            self.dodge_chance = max(0, self.dodge_chance - 5)#takes damage from char2/enemy and stops from negative health
+            print(f"{self.name}'s dodge chance reduced: {old}% -> {self.dodge_chance}%") #New aspect that allows for a more immessive game
+        
+
+        original_health = self.health
+        self.health = max(0, self.health - damage)
+        print(f"{self.name} took {damage} damage! Health: {original_health} -> {self.health}")
+
+
         # TODO: Implement taking damage
         # Reduce self.health by damage amount
         # Make sure health doesn't go below 0
-        pass
+        return
         
     def display_stats(self):
         """
         Prints the character's current stats in a nice format.
         """
+        print(f"Name: {self.name} \nHealth:{self.health} \nStrength: {self.strength}\nMagic: {self.magic}") 
         # TODO: Print character's name, health, strength, and magic
         # Make it look nice with formatting
-        pass
+        
 
 class Player(Character):
     """
@@ -107,19 +140,26 @@ class Player(Character):
         Initialize a player character.
         Should call the parent constructor and add player-specific attributes.
         """
+        super().__init__(name, health, strength, magic)
+        self.character_class = character_class
+        self.level = 1
+        self.experience = 0
         # TODO: Call super().__init__() with the basic character info
         # TODO: Store the character_class (like "Warrior", "Mage", etc.)
         # TODO: Add any other player-specific attributes (level, experience, etc.)
-        pass
+        
         
     def display_stats(self):
         """
         Override the parent's display_stats to show additional player info.
         Should show everything the parent shows PLUS player-specific info.
         """
+        super().display_stats()
+        print(f"Class: {self.character_class} | Level: {self.level} | EXP: {self.experience}")
+        
         # TODO: Call the parent's display_stats method using super()
         # TODO: Then print additional player info like class and level
-        pass
+        
 
 class Warrior(Player):
     """
@@ -132,6 +172,9 @@ class Warrior(Player):
         Create a warrior with appropriate stats.
         Warriors should have: high health, high strength, low magic
         """
+        super().__init__(name, "Warrior", health=120, strength=15, magic=5)
+        self.dodge_chance = 5
+
         # TODO: Call super().__init__() with warrior-appropriate stats
         # Suggested stats: health=120, strength=15, magic=5
         pass
@@ -141,18 +184,26 @@ class Warrior(Player):
         Override the basic attack to make it warrior-specific.
         Warriors should do extra physical damage.
         """
+        damage = self.strength + 5
+        print(f"{self.name} swings a sword at {target.name} for {damage} damage!")
+        target.take_damage(damage)
         # TODO: Implement warrior attack
         # Should do more damage than basic attack
         # Maybe strength + 5 bonus damage?
-        pass
+        
         
     def power_strike(self, target):
         """
         Special warrior ability - a powerful attack that does extra damage.
         """
+        damage = self.strength + 15 # special attack
+        print(f"{self.name} uses Power Strike!")
+        target.take_damage(damage)
+
+        
         # TODO: Implement power strike
         # Should do significantly more damage than regular attack
-        pass
+        
 
 class Mage(Player):
     """
@@ -165,6 +216,8 @@ class Mage(Player):
         Create a mage with appropriate stats.
         Mages should have: low health, low strength, high magic
         """
+        super().__init__(name, "Mage", health=80, strength=8, magic=20)
+        self.dodge_chance = 10
         # TODO: Call super().__init__() with mage-appropriate stats
         # Suggested stats: health=80, strength=8, magic=20
         pass
@@ -174,29 +227,36 @@ class Mage(Player):
         Override the basic attack to make it magic-based.
         Mages should use magic for damage instead of strength.
         """
+        damage = self.magic
+        print(f"{self.name} casts a spell on {target.name} for {damage} damage!")
+        target.take_damage(damage)
         # TODO: Implement mage attack
         # Should use self.magic for damage calculation instead of strength
-        pass
+        
         
     def fireball(self, target):
         """
         Special mage ability - a powerful magical attack.
         """
+        damage = self.magic + 10
+        print(f"{self.name} casts FIREBALL on {target.name} for {damage} damage!")
+        target.take_damage(damage)
         # TODO: Implement fireball spell
         # Should do magic-based damage with bonus
-        pass
+        
 
 class Rogue(Player):
     """
     Rogue class - quick and sneaky fighter.
     Inherits from Player.
     """
-    
     def __init__(self, name):
         """
         Create a rogue with appropriate stats.
         Rogues should have: medium health, medium strength, medium magic
         """
+        super().__init__(name, "Rogue", 90, 12, 10)
+        self.dodge_chance = 25
         # TODO: Call super().__init__() with rogue-appropriate stats
         # Suggested stats: health=90, strength=12, magic=10
         pass
@@ -206,29 +266,47 @@ class Rogue(Player):
         Override the basic attack to make it rogue-specific.
         Rogues should have a chance for extra damage (critical hits).
         """
+        damage = self.strength
+        if random.randint(1, 10) <= 3:
+            damage *= 2
+            print(f"💥 Critical Hit! {self.name} attacks {target.name} for {damage} damage!")
+        else:
+            print(f"{self.name} attacks {target.name} for {damage} damage!")
+        target.take_damage(damage)
+            
         # TODO: Implement rogue attack
         # Could add a chance for critical hit (double damage)
         # Hint: use random.randint(1, 10) and if result <= 3, it's a crit
-        pass
+        
         
     def sneak_attack(self, target):
         """
         Special rogue ability - guaranteed critical hit.
         """
+        if target.dodge_chance > 0:
+            original_dodge = target.dodge_chance
+            target.dodge_chance = max(0, target.dodge_chance - 10)  # reduce by 10%
+            print(f"{target.name}'s dodge chance decreased from {original_dodge}% -> {target.dodge_chance}%") #gives the sneak attack higher chance to hit
+        
+        damage = self.strength * 2
+        print(f"{self.name} performs SNEAK ATTACK on {target.name} for {damage} damage!")
+        target.take_damage(damage)
         # TODO: Implement sneak attack
         # Should always do critical damage
-        pass
+        
 
 class Weapon:
     """
     Weapon class to demonstrate composition.
     Characters can HAVE weapons (composition, not inheritance).
     """
-    
+
     def __init__(self, name, damage_bonus):
         """
         Create a weapon with a name and damage bonus.
         """
+        self.name = name
+        self.damage_bonus = damage_bonus
         # TODO: Store weapon name and damage bonus
         pass
         
@@ -236,6 +314,7 @@ class Weapon:
         """
         Display information about this weapon.
         """
+        print(f"Weapon: {self.name}, Damage Bonus: {self.damage_bonus}")
         # TODO: Print weapon name and damage bonus
         pass
 
@@ -294,3 +373,5 @@ if __name__ == "__main__":
     # battle.fight()
     
     print("\n✅ Testing complete!")
+
+## Chat gpt generated code 
