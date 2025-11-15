@@ -359,7 +359,7 @@ if __name__ == "__main__":
     mage.fireball(target2)
     rogue.sneak_attack(target3)
     
-    TODO: Test composition with weapons
+    #TODO: Test composition with weapons
     print("\n🗡️ Testing Weapon Composition:")
     sword = Weapon("Iron Sword", 10)
     staff = Weapon("Magic Staff", 15)
@@ -369,7 +369,7 @@ if __name__ == "__main__":
     staff.display_info()
     dagger.display_info()
     
-    TODO: Test the battle system
+    #TODO: Test the battle system
     print("\n⚔️ Testing Battle System:")
     battle = SimpleBattle(warrior, mage)
     battle.fight()
